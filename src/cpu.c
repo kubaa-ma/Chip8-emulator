@@ -113,7 +113,7 @@ static uint16_t fetch_opcode(cpu *Cpu){
     return opcode;
 }
 
-bool execute_opcode(cpu *Cpu) {
+void execute_opcode(cpu *Cpu) {
 
     /* Fetch */
     uint16_t opcode = fetch_opcode(Cpu);
@@ -243,7 +243,7 @@ bool execute_opcode(cpu *Cpu) {
         }
         case 0x9000: { //preskocit Vx != Vy
             if(n == 0){
-                (Cpu->V[X] != Cpu->V[Y]) ? 2 : 0;
+                Cpu->PC = (Cpu->V[X] != Cpu->V[Y]) ? 2 : 0;
             }
         
             break;
@@ -264,7 +264,7 @@ bool execute_opcode(cpu *Cpu) {
             break;
         }
         case 0xD000: {
-            draw_sprite(Cpu->V[X], Cpu->V[Y], n);
+            sprite_draw(Cpu,Cpu->V[X], Cpu->V[Y], n);
             Cpu->render = true;
             break;
         }
@@ -372,5 +372,4 @@ bool execute_opcode(cpu *Cpu) {
             break;
     }
 
-    return true;
 }

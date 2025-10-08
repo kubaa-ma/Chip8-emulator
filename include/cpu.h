@@ -39,5 +39,5 @@ typedef struct cpu{
 void init_cpu(cpu *data_cpu);
 int load_rom(uint8_t *memory);
 void Cpu_dump(cpu Cpu);
-bool execute_opcode(cpu *Cpu);
+void execute_opcode(cpu *Cpu);
 void sprite_draw(cpu *Cpu, uint8_t Vx, uint8_t Vy, uint8_t height);
