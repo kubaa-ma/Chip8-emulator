@@ -1,5 +1,25 @@
 #include "../include/cpu.h"
 
+unsigned char chip8_fontset[80] = 
+{ 
+    0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+    0x20, 0x60, 0x20, 0x20, 0x70, // 1
+    0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+    0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+    0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+    0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+    0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+    0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+    0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+    0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+    0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+    0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+    0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+    0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+    0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+    0xF0, 0x80, 0xF0, 0x80, 0x80  // F 
+};
+
 
 void init_cpu(cpu *Cpu) {
     memset(Cpu->memory, 0, sizeof(Cpu->memory));
@@ -58,6 +78,29 @@ void Cpu_dump(cpu Cpu){
     
 }
 
+void sprite_draw(cpu *Cpu, uint8_t Vx, uint8_t Vy, uint8_t height){
+    Cpu->V[0xF] = 0; // vraceni kolize do puvodniho tvaru
+    uint8_t row = Vx, columm = Vy;
+
+    for(uint8_t by_i = 0; by_i < height; by_i++){
+        uint8_t sprite_byte = Cpu->memory[Cpu->I + by_i];
+
+        for(uint8_t bi_i = 0; bi_i < 8; bi_i++){
+            uint8_t pixel = (sprite_byte >> (7 - bi_i)) & 0x1;
+
+            uint16_t screen_x = (Vx + bi_i) % DISPLAY_WIDTH;
+            uint16_t screen_y = (Vy + by_i) % DISPLAY_HEIGHT;
+            uint16_t index = screen_y * DISPLAY_WIDTH + screen_x;
+            if(pixel){ // XOR kresleni
+                if(Cpu->display[index] == 1){
+                    Cpu->V[0xF] = 1;
+                    Cpu->display[index] ^= 1;
+                }
+            }
+        }
+    }
+}
+
 static uint8_t byte_random(){
     return (rand() % 256);
 }
@@ -89,6 +132,7 @@ bool execute_opcode(cpu *Cpu) {
             switch (kk){
                 case 0x00E0:{ // CLS
                         memset(Cpu->display, 0, DISPLAY_SIZE);
+                        Cpu->render = true;
                     break;
                 }
 
@@ -219,6 +263,108 @@ bool execute_opcode(cpu *Cpu) {
 
             break;
         }
+        case 0xD000: {
+            draw_sprite(Cpu->V[X], Cpu->V[Y], n);
+            Cpu->render = true;
+            break;
+        }
+        case 0xE000: { // stisknuti tlacitka -> udalost
+            switch(kk) {
+                case 0x9E: { // Preskocit instrukci Vx je stisknuto
+                    Cpu->PC += (Cpu->keypad[Cpu->V[X]]) ? 2 : 0;
+
+                    break;
+                }
+                case 0xA1: { //Preskocit instrukci pokud neni stisknuto Vx
+                    Cpu->PC += (!Cpu->keypad[Cpu->V[X]]) ? 2 : 0;
+
+                    break;
+                }
+                default:
+                    UNKNOWN_OPCDE;
+                    break;
+            }
+
+            break;
+        }
+        case 0xF000:{
+            switch (kk){
+                case 0x07:{
+                    Cpu->V[X] = Cpu->delay_timer;
+                    
+                    break;
+                }
+                case 0x0A: { // FX0A – cekani na stisknuti tlacitka
+                    bool key_pressed = false;
+
+                    for (uint8_t i = 0; i < 16; i++) {
+                        if (Cpu->keypad[i]) {
+                            Cpu->V[X] = i;
+                            key_pressed = true;
+                            break;
+                        }
+                    }
+                    if (!key_pressed)
+                        return;
+
+                    break;
+                }
+                case 0x15: {
+                    Cpu->delay_timer = Cpu->V[X];
+
+                    break;
+                }
+                case 0x18: {
+                    Cpu->sound_timer = Cpu->V[X];
+                    
+                    break;
+                }
+                case 0x1E: {
+                    Cpu->V[0xF] = (Cpu->I + Cpu->V[X] > 0xFFF) ? 1 : 0;
+                    Cpu->I += Cpu->V[X];
+
+                    break;
+                }
+                case 0x29: {
+                    Cpu->I = FONTBYTES_PER_CHAR * Cpu->V[X];
+
+
+                    break;
+                }
+                case 0x33: {
+                    Cpu->memory[Cpu->I] = (Cpu->V[X] % 1000) / 100;
+                    Cpu->memory[Cpu->I + 1] = (Cpu->V[X] % 100) / 10;
+                    Cpu->memory[Cpu->I + 2] = (Cpu->V[X] % 10);
+
+                    break;
+                }
+                case 0x55: {
+                    for(int i = 0; i <= X; i++) {
+                        Cpu->memory[Cpu->I + i] = Cpu->V[i];
+                    }
+                    Cpu->I += X + 1;
+
+                    break;
+                }
+                case 0x65: {
+                    for(int i = 0;i <= X; i++){
+                        for(int i = 0; i <= X; i++){
+                            Cpu->V[i] = Cpu->memory[Cpu->I + i];
+                            Cpu->I += X + 1;
+                        }
+
+                    }
+
+                    break;
+                }
+                default:{
+                    UNKNOWN_OPCDE;
+                    break;
+                }
+    
+            }
+            break;
+        }
 
 
         default:
@@ -228,7 +374,3 @@ bool execute_opcode(cpu *Cpu) {
 
     return true;
 }
-
-
-/*  Load fonts    */
-/*  Load ROM      */
