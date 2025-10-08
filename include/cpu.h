@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define ROM_PATH "roms/games/15 Puzzle [Roger Ivie].ch8"
 #define MEMORY_SIZE 4096

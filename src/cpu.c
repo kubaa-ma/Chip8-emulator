@@ -58,6 +58,10 @@ void Cpu_dump(cpu Cpu){
     
 }
 
+static uint8_t byte_random(){
+    return (rand() % 256);
+}
+
 static uint16_t fetch_opcode(cpu *Cpu){
 
     uint16_t opcode = (Cpu->memory[Cpu->PC] << 8) | Cpu->memory[Cpu->PC + 1];
@@ -107,12 +111,115 @@ bool execute_opcode(cpu *Cpu) {
 
             break;
         }
-        case 0x3000: { // Se (preskocit pokud Vx == NN)
+        case 0x3000: { // Se (preskocit Vx == NN)
             if(Cpu->V[X] == kk){
                 Cpu->PC += 2;
             }
             break;
         }
+        case 0x4000: { // Se (preskocit Vx != NN)
+            if(Cpu->V[X] != kk){
+                Cpu->PC += 2;
+            }
+
+            break;
+        }
+        case 0x5000: { // Se (preskocit Vx == Vy)
+            if(Cpu->V[X] == Cpu->V[Y]){
+                Cpu->PC += 2;
+            }
+
+            break;
+        }
+        case 0x6000: { // Nahrat do registru V s indexem X, kk
+            Cpu->V[X] = kk;
+
+            break;
+        }
+        case 0x7000: { // Pricist k registru V s indexem x, kk
+            Cpu->V[X] += kk;
+
+            break;
+        }
+        case 0x8000: { // 8XYN - Aritmeticke zalezitosti
+
+            switch(n){
+                case 0x0: {
+                    Cpu->V[X] = Cpu->V[Y];
+                    
+                    break;
+                }
+                case 0x1: {
+                    Cpu->V[X] |= Cpu->V[Y];
+
+                    break;
+                }
+                case 0x2: {
+                    Cpu->V[X] &= Cpu->V[Y];
+
+                    break;
+                }
+                case 0x3: {
+                    Cpu->V[X] ^= Cpu->V[Y];
+
+                    break;
+                }
+                case 0x4: {
+                    Cpu->V[0xF] = ((int)Cpu->V[X] + (int)Cpu->V[Y]) > 255 ? 0 : 1;
+                    Cpu->V[X] += Cpu->V[Y];
+                    break;
+                }
+                case 0x5: {
+                    Cpu->V[0xF] = (Cpu->V[X] > Cpu->V[Y]) ? 1 : 0;
+                    Cpu->V[X] -= Cpu->V[Y];
+                    break;
+                }
+                case 0x6: {
+                    Cpu->V[0xF] = Cpu->V[X] & 0x1;
+                    Cpu->V[X] >>= 1;
+                    
+                    break;
+                }
+                case 0x7: {
+                    Cpu->V[0xF] = (Cpu->V[Y] > Cpu->V[X]) ? 1 : 0;
+                    Cpu->V[X] = Cpu->V[Y] - Cpu->V[X];
+
+                    break;
+                }
+                case 0xE: {
+                    Cpu->V[0xF] = (Cpu->V[X] >> 7) & 0x1;
+                    Cpu->V[X] = (Cpu->V[X] << 1);
+                    break;
+                }
+
+            default:
+                UNKNOWN_OPCDE;
+                break;
+            }
+        }
+        case 0x9000: { //preskocit Vx != Vy
+            if(n == 0){
+                (Cpu->V[X] != Cpu->V[Y]) ? 2 : 0;
+            }
+        
+            break;
+        }
+        case 0xA000: { //Annn: nastavit I na adresu nnn            
+            Cpu->I = nnn;
+
+            break;
+        }
+        case 0xB000: { // Skocit na adresu (V[0] + nnn)
+            Cpu->PC = nnn + Cpu->V[0];
+            
+            break;
+        }
+        case 0xC000: { // Do Vx nahodny bajt AND kk
+            Cpu->V[X] = byte_random() & kk;
+
+            break;
+        }
+
 
         default:
             UNKNOWN_OPCDE;
