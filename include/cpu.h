@@ -9,6 +9,10 @@
 #define MEMORY_SIZE 4096
 #define PROGRAM_START 0x200
 
+#define DISPLAY_SIZE 64 * 32\
+
+#define UNKNOWN_OPCDE printf("Unknown opcode: 0x%X\n", opcode)\
+
 typedef struct cpu{
     uint8_t memory[MEMORY_SIZE];
     uint8_t V[16];
@@ -21,6 +25,8 @@ typedef struct cpu{
     
     uint8_t sound_timer;
     uint8_t delay_timer;
+
+    uint8_t display[DISPLAY_SIZE];
 }cpu;
 
 void init_cpu(cpu *data_cpu);
@@ -28,3 +34,5 @@ void init_cpu(cpu *data_cpu);
 int load_rom(uint8_t *memory);
 
 void Cpu_dump(cpu Cpu);
+
+bool execute_opcode(cpu *Cpu);

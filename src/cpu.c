@@ -58,5 +58,70 @@ void Cpu_dump(cpu Cpu){
     
 }
 
+static uint16_t fetch_opcode(cpu *Cpu){
+
+    uint16_t opcode = (Cpu->memory[Cpu->PC] << 8) | Cpu->memory[Cpu->PC + 1];
+    Cpu->PC += 2;
+
+    return opcode;
+}
+
+bool execute_opcode(cpu *Cpu) {
+
+    /* Fetch */
+    uint16_t opcode = fetch_opcode(Cpu);
+    uint8_t X,Y,n, kk;
+    uint16_t nnn;
+    X = (opcode >> 8) & 0x000F; // Spodni 4 bity vysiho bajtu
+    Y = (opcode >> 4) & 0x000F; // Vyssi 4 bity nizsiho bajtu
+    n = opcode & 0x000F; //spodni 4 bity nizsiho bajtu
+    kk = opcode & 0x00FF; // spodni bajt
+    nnn = opcode & 0x0FFF; // spodnich 12 bitu
+
+
+    switch (opcode & 0xF000) {
+
+        case 0x0000: {
+            switch (kk){
+                case 0x00E0:{ // CLS
+                        memset(Cpu->display, 0, DISPLAY_SIZE);
+                    break;
+                }
+
+                case 0x00EE:{   //RET
+                        Cpu->PC = Cpu->stack[--Cpu->SP];
+                    break;
+                }
+                default:
+                    UNKNOWN_OPCDE;
+            }
+        break;
+        }
+        case 0x1000: { //JP addr
+                Cpu->PC = nnn;
+            break;
+        }
+        case 0x2000: { // Call addr
+            Cpu->stack[Cpu->SP++] = Cpu->PC;
+            Cpu->PC = nnn;
+
+            break;
+        }
+        case 0x3000: { // Se (preskocit pokud Vx == NN)
+            if(Cpu->V[X] == kk){
+                Cpu->PC += 2;
+            }
+            break;
+        }
+
+        default:
+            UNKNOWN_OPCDE;
+            break;
+    }
+
+    return true;
+}
+
+
 /*  Load fonts    */
 /*  Load ROM      */
