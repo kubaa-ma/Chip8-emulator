@@ -9,10 +9,10 @@ int main(){
 
     Cpu_dump(Cpu);
 
-    while(true)
+    while(true){
         execute_opcode(&Cpu);
-
-    Cpu_dump(Cpu);
+        Cpu_dump(Cpu);
+    }
 
     return 0;
 }

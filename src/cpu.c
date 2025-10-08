@@ -209,7 +209,7 @@ void execute_opcode(cpu *Cpu) {
                     break;
                 }
                 case 0x4: {
-                    Cpu->V[0xF] = ((int)Cpu->V[X] + (int)Cpu->V[Y]) > 255 ? 0 : 1;
+                    Cpu->V[0xF] = ((int)Cpu->V[X] + (int)Cpu->V[Y]) > 255 ? 1 : 0;
                     Cpu->V[X] += Cpu->V[Y];
                     break;
                 }
@@ -232,7 +232,7 @@ void execute_opcode(cpu *Cpu) {
                 }
                 case 0xE: {
                     Cpu->V[0xF] = (Cpu->V[X] >> 7) & 0x1;
-                    Cpu->V[X] = (Cpu->V[X] << 1);
+                    Cpu->V[X] = (Cpu->V[X] << 1) & 0xFF;
                     break;
                 }
 
@@ -240,10 +240,11 @@ void execute_opcode(cpu *Cpu) {
                 UNKNOWN_OPCDE;
                 break;
             }
+            break;
         }
         case 0x9000: { //preskocit Vx != Vy
-            if(n == 0){
-                Cpu->PC = (Cpu->V[X] != Cpu->V[Y]) ? 2 : 0;
+            if (n == 0 && Cpu->V[X] != Cpu->V[Y]) {
+                Cpu->PC += 2;
             }
         
             break;
@@ -347,13 +348,11 @@ void execute_opcode(cpu *Cpu) {
                     break;
                 }
                 case 0x65: {
-                    for(int i = 0;i <= X; i++){
-                        for(int i = 0; i <= X; i++){
-                            Cpu->V[i] = Cpu->memory[Cpu->I + i];
-                            Cpu->I += X + 1;
-                        }
-
+                    for (int i = 0; i <= X; i++) {
+                        Cpu->V[i] = Cpu->memory[Cpu->I + i];
                     }
+                    Cpu->I += X + 1;
+
 
                     break;
                 }
