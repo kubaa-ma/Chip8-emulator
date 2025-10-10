@@ -24,7 +24,7 @@ unsigned char chip8_fontset[80] =
 void init_cpu(cpu *Cpu) {
     memset(Cpu->memory, 0, MEMORY_SIZE);
     memset(Cpu->V, 0, V_REGISTERS);
-    memset(Cpu->stack, 0, STACK);
+    memset(Cpu->stack, 0, STACK*2);
     memset(Cpu->display, 0, DISPLAY_SIZE);
     memcpy(&Cpu->memory[0x50], chip8_fontset, sizeof(chip8_fontset));
     Cpu->I = 0;
@@ -62,7 +62,7 @@ int load_rom(uint8_t *memory) {
 
 
 void Cpu_dump(cpu Cpu){
-    printf("---");
+    printf("---\n");
     printf("Program Counter: 0x%X\n", Cpu.PC);
     printf("Index Register: %d\n", Cpu.I);
     printf("Stack Pointer: %d\n", Cpu.SP);
@@ -76,7 +76,7 @@ void Cpu_dump(cpu Cpu){
     for(int i = 0; i < MEMORY_SIZE; i++)
         printf(" %X", Cpu.memory[i]);
     
-    printf("\n---");
+    printf("\n---\n");
     
 }
 
