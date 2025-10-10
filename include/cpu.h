@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define ROM_PATH "roms/games/Tic-Tac-Toe [David Winter].ch8"
+#define ROM_PATH "roms/games/Brick (Brix hack, 1990).ch8"
 #define MEMORY_SIZE 4096
 #define PROGRAM_START 0x200
 

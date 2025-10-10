@@ -101,6 +101,7 @@ void sprite_draw(cpu *Cpu, uint8_t Vx, uint8_t Vy, uint8_t height){
             }
         }
     }
+    Cpu->render = true;
 }
 
 static uint8_t byte_random(){
@@ -298,8 +299,10 @@ void execute_opcode(cpu *Cpu) {
                     break;
                 }
                 case 0x0A: { // FX0A – cekani na stisknuti tlacitka
-                    bool key_pressed = false;
-
+                    int index;
+                    scanf("%d", &index);
+                    Cpu->keypad[index] = 1;
+                    bool key_pressed = true;
                     for (uint8_t i = 0; i < 16; i++) {
                         if (Cpu->keypad[i]) {
                             Cpu->V[X] = i;

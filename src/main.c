@@ -3,7 +3,7 @@
 
 #define PIXEL_SCALE 10
 
-void draw_display(SDL_Renderer *renderer, uint8_t *display) {
+void draw_display(SDL_Renderer *renderer, cpu *Cpu) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
@@ -12,7 +12,7 @@ void draw_display(SDL_Renderer *renderer, uint8_t *display) {
     for(int y = 0; y < DISPLAY_HEIGHT; y++) {
         for(int x = 0; x < DISPLAY_WIDTH; x++) {
 
-            if (display[y * DISPLAY_WIDTH + x]) {
+            if (Cpu->display[y * DISPLAY_WIDTH + x]) {
                 SDL_FRect rect = {
                     .x = x * PIXEL_SCALE,
                     .y = y * PIXEL_SCALE,
@@ -23,6 +23,7 @@ void draw_display(SDL_Renderer *renderer, uint8_t *display) {
             }
         }
     }
+    Cpu->render = false;
 
     SDL_RenderPresent(renderer);
 }
@@ -38,16 +39,32 @@ int main(){
     
     load_rom(Cpu.memory);
     
-    //Cpu_dump(Cpu);
+    Cpu_dump(Cpu);
+    bool quit = false;
     
-    while(true){
+    while (!quit) {
+        SDL_Event ev;
+        
+        while (SDL_PollEvent(&ev)) {
+            switch (ev.type) {
+            case SDL_EVENT_QUIT:
+                quit = true;
+
+                break;
+            default:
+                break;
+            }
+        }
+        
+        SDL_Delay(1);
         execute_opcode(&Cpu);
-        draw_display(renderer, Cpu.display);
+        if(Cpu.render)
+            draw_display(renderer, &Cpu);
     }
+    
+    Cpu_dump(Cpu);
 
 
-
-    //Cpu_dump(Cpu);
 
     SDL_DestroyWindow(window);
     SDL_Quit();
