@@ -299,10 +299,7 @@ void execute_opcode(cpu *Cpu) {
                     break;
                 }
                 case 0x0A: { // FX0A – cekani na stisknuti tlacitka
-                    int index;
-                    scanf("%d", &index);
-                    Cpu->keypad[index] = 1;
-                    bool key_pressed = true;
+                    bool key_pressed = false;
                     for (uint8_t i = 0; i < 16; i++) {
                         if (Cpu->keypad[i]) {
                             Cpu->V[X] = i;
