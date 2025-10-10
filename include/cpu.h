@@ -15,16 +15,21 @@
 #define DISPLAY_HEIGHT 32
 #define DISPLAY_SIZE DISPLAY_WIDTH * DISPLAY_HEIGHT\
 
+#define V_REGISTERS 16
+#define STACK 16
+#define KEYS 16
+
+
 #define UNKNOWN_OPCDE printf("Unknown opcode: 0x%X\n", opcode)\
 
 typedef struct cpu{
     uint8_t memory[MEMORY_SIZE];
-    uint8_t V[16];
+    uint8_t V[V_REGISTERS];
 
     uint16_t I;
     uint16_t PC;
     
-    uint16_t stack[16];
+    uint16_t stack[STACK];
     uint8_t SP;
     
     uint8_t sound_timer;
@@ -33,7 +38,7 @@ typedef struct cpu{
     uint8_t display[DISPLAY_SIZE];
     bool render; //zahajit vykreslovani
     
-    uint8_t keypad[16];
+    uint8_t keypad[KEYS];
 }cpu;
 
 void init_cpu(cpu *data_cpu);

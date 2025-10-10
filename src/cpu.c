@@ -22,9 +22,11 @@ unsigned char chip8_fontset[80] =
 
 
 void init_cpu(cpu *Cpu) {
-    memset(Cpu->memory, 0, sizeof(Cpu->memory));
-    memset(Cpu->V, 0, sizeof(Cpu->V));
-    memset(Cpu->stack, 0, sizeof(Cpu->stack));
+    memset(Cpu->memory, 0, MEMORY_SIZE);
+    memset(Cpu->V, 0, V_REGISTERS);
+    memset(Cpu->stack, 0, STACK);
+    memset(Cpu->display, 0, DISPLAY_SIZE);
+    memcpy(&Cpu->memory[0x50], chip8_fontset, sizeof(chip8_fontset));
     Cpu->I = 0;
     Cpu->SP = 0;
     Cpu->PC = PROGRAM_START;
@@ -79,23 +81,23 @@ void Cpu_dump(cpu Cpu){
 }
 
 void sprite_draw(cpu *Cpu, uint8_t Vx, uint8_t Vy, uint8_t height){
-    Cpu->V[0xF] = 0; // vraceni kolize do puvodniho tvaru
-    uint8_t row = Vx, columm = Vy;
+    Cpu->V[0xF] = 0;
 
-    for(uint8_t by_i = 0; by_i < height; by_i++){
+    for (uint8_t by_i = 0; by_i < height; by_i++) {
         uint8_t sprite_byte = Cpu->memory[Cpu->I + by_i];
 
-        for(uint8_t bi_i = 0; bi_i < 8; bi_i++){
+        for (uint8_t bi_i = 0; bi_i < 8; bi_i++) {
             uint8_t pixel = (sprite_byte >> (7 - bi_i)) & 0x1;
 
             uint16_t screen_x = (Vx + bi_i) % DISPLAY_WIDTH;
             uint16_t screen_y = (Vy + by_i) % DISPLAY_HEIGHT;
             uint16_t index = screen_y * DISPLAY_WIDTH + screen_x;
-            if(pixel){ // XOR kresleni
-                if(Cpu->display[index] == 1){
+
+            if (pixel) {
+                if (Cpu->display[index] == 1) {
                     Cpu->V[0xF] = 1;
-                    Cpu->display[index] ^= 1;
                 }
+                Cpu->display[index] ^= 1;
             }
         }
     }

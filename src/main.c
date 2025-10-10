@@ -11,8 +11,9 @@ int main(){
 
     while(true){
         execute_opcode(&Cpu);
-        Cpu_dump(Cpu);
     }
+
+    Cpu_dump(Cpu);
 
     return 0;
 }
