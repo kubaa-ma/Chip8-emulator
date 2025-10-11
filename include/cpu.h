@@ -5,8 +5,9 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
-#define ROM_PATH "roms/games/Brick (Brix hack, 1990).ch8"
+#define ROM_PATH "roms/games/Tic-Tac-Toe [David Winter].ch8"
 #define MEMORY_SIZE 4096
 #define PROGRAM_START 0x200
 
@@ -18,6 +19,7 @@
 #define V_REGISTERS 16
 #define STACK 16
 #define KEYS 16
+#define FONT_START_ADDRESS 0x50
 
 
 #define UNKNOWN_OPCDE printf("Unknown opcode: 0x%X\n", opcode)\
@@ -39,6 +41,7 @@ typedef struct cpu{
     bool render; //zahajit vykreslovani
     
     uint8_t keypad[KEYS];
+    bool waiting_key_press;
 }cpu;
 
 void init_cpu(cpu *data_cpu);

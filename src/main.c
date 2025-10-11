@@ -3,6 +3,36 @@
 
 #define PIXEL_SCALE 10
 
+void handle_input(cpu *Cpu, SDL_Event *event, bool pressed) {
+    SDL_Keycode key = event->key.key;
+
+    switch (key) {
+        case SDLK_1: Cpu->keypad[0x1] = pressed; break;
+        case SDLK_2: Cpu->keypad[0x2] = pressed; break;
+        case SDLK_3: Cpu->keypad[0x3] = pressed; break;
+        case SDLK_4: Cpu->keypad[0xC] = pressed; break;
+
+        case SDLK_Q: Cpu->keypad[0x4] = pressed; break;
+        case SDLK_W: Cpu->keypad[0x5] = pressed; break;
+        case SDLK_E: Cpu->keypad[0x6] = pressed; break;
+        case SDLK_R: Cpu->keypad[0xD] = pressed; break;
+
+        case SDLK_A: Cpu->keypad[0x7] = pressed; break;
+        case SDLK_S: Cpu->keypad[0x8] = pressed; break;
+        case SDLK_D: Cpu->keypad[0x9] = pressed; break;
+        case SDLK_F: Cpu->keypad[0xE] = pressed; break;
+
+        case SDLK_Z: Cpu->keypad[0xA] = pressed; break;
+        case SDLK_X: Cpu->keypad[0x0] = pressed; break;
+        case SDLK_C: Cpu->keypad[0xB] = pressed; break;
+        case SDLK_V: Cpu->keypad[0xF] = pressed; break;
+
+        default:
+            break;
+    }
+}
+
+
 void draw_display(SDL_Renderer *renderer, cpu *Cpu) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
@@ -11,7 +41,6 @@ void draw_display(SDL_Renderer *renderer, cpu *Cpu) {
 
     for(int y = 0; y < DISPLAY_HEIGHT; y++) {
         for(int x = 0; x < DISPLAY_WIDTH; x++) {
-
             if (Cpu->display[y * DISPLAY_WIDTH + x]) {
                 SDL_FRect rect = {
                     .x = x * PIXEL_SCALE,
@@ -24,7 +53,6 @@ void draw_display(SDL_Renderer *renderer, cpu *Cpu) {
         }
     }
     Cpu->render = false;
-
     SDL_RenderPresent(renderer);
 }
 
@@ -33,38 +61,29 @@ int main(){
     SDL_Window *window = SDL_CreateWindow("Display", DISPLAY_WIDTH * PIXEL_SCALE, DISPLAY_HEIGHT * PIXEL_SCALE, 0);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, NULL);
 
-
-    
     init_cpu(&Cpu);
-    
     load_rom(Cpu.memory);
-    
-    Cpu_dump(Cpu);
+
     bool quit = false;
-    
+
     while (!quit) {
         SDL_Event ev;
         
         while (SDL_PollEvent(&ev)) {
-            switch (ev.type) {
-            case SDL_EVENT_QUIT:
+            if (ev.type == SDL_EVENT_QUIT)
                 quit = true;
-
-                break;
-            default:
-                break;
-            }
+            else if (ev.type == SDL_EVENT_KEY_DOWN)
+                handle_input(&Cpu, &ev, true);
+            else if (ev.type == SDL_EVENT_KEY_UP)
+                handle_input(&Cpu, &ev, false);
         }
-        
-        SDL_Delay(1);
+
+        SDL_Delay(4);   
         execute_opcode(&Cpu);
-        if(Cpu.render)
+
+        if (Cpu.render)
             draw_display(renderer, &Cpu);
     }
-    
-    Cpu_dump(Cpu);
-
-
 
     SDL_DestroyWindow(window);
     SDL_Quit();

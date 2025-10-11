@@ -24,14 +24,19 @@ unsigned char chip8_fontset[80] =
 void init_cpu(cpu *Cpu) {
     memset(Cpu->memory, 0, MEMORY_SIZE);
     memset(Cpu->V, 0, V_REGISTERS);
-    memset(Cpu->stack, 0, STACK*2);
+    memset(Cpu->stack, 0, STACK * sizeof(uint16_t));
     memset(Cpu->display, 0, DISPLAY_SIZE);
     memcpy(&Cpu->memory[0x50], chip8_fontset, sizeof(chip8_fontset));
+
+    memset(Cpu->keypad, 0, KEYS);
+
     Cpu->I = 0;
     Cpu->SP = 0;
     Cpu->PC = PROGRAM_START;
     Cpu->sound_timer = 0;
     Cpu->delay_timer = 0;
+    Cpu->waiting_key_press = false;
+    srand((unsigned)time(NULL));
 }
 
 
@@ -308,6 +313,7 @@ void execute_opcode(cpu *Cpu) {
                         }
                     }
                     if (!key_pressed)
+                        Cpu->PC -= 2;
                         return;
 
                     break;
@@ -329,9 +335,7 @@ void execute_opcode(cpu *Cpu) {
                     break;
                 }
                 case 0x29: {
-                    Cpu->I = FONTBYTES_PER_CHAR * Cpu->V[X];
-
-
+                    Cpu->I = FONT_START_ADDRESS + (FONTBYTES_PER_CHAR * Cpu->V[X]);
                     break;
                 }
                 case 0x33: {
