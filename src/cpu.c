@@ -312,9 +312,10 @@ void execute_opcode(cpu *Cpu) {
                             break;
                         }
                     }
-                    if (!key_pressed)
+                    if (!key_pressed){
                         Cpu->PC -= 2;
                         return;
+                    }
 
                     break;
                 }

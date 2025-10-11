@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define ROM_PATH "roms/games/Tic-Tac-Toe [David Winter].ch8"
+#define ROM_PATH "roms/games/Tetris [Fran Dachille, 1991].ch8"
 #define MEMORY_SIZE 4096
 #define PROGRAM_START 0x200
 

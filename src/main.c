@@ -81,6 +81,10 @@ int main(){
         SDL_Delay(4);   
         execute_opcode(&Cpu);
 
+        for(int i = 0; i < KEYS; i++)
+            if(Cpu.keypad[i])
+                printf("Button[%d]: %d\n", i, Cpu.keypad[i]);
+
         if (Cpu.render)
             draw_display(renderer, &Cpu);
     }
