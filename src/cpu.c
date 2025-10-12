@@ -94,20 +94,21 @@ void sprite_draw(cpu *Cpu, uint8_t Vx, uint8_t Vy, uint8_t height){
         for (uint8_t bi_i = 0; bi_i < 8; bi_i++) {
             uint8_t pixel = (sprite_byte >> (7 - bi_i)) & 0x1;
 
-            uint16_t screen_x = (Vx + bi_i) % DISPLAY_WIDTH;
-            uint16_t screen_y = (Vy + by_i) % DISPLAY_HEIGHT;
-            uint16_t index = screen_y * DISPLAY_WIDTH + screen_x;
+            uint16_t index = (Vy + by_i) * DISPLAY_WIDTH + (Vx + bi_i);
+            uint8_t byte = index / 8;
+            uint8_t bit  = index % 8;
 
             if (pixel) {
-                if (Cpu->display[index] == 1) {
+                if (Cpu->display[byte] & (1 << bit)) {
                     Cpu->V[0xF] = 1;
                 }
-                Cpu->display[index] ^= 1;
+                Cpu->display[byte] ^= (1 << bit);
             }
         }
     }
     Cpu->render = true;
 }
+
 
 static uint8_t byte_random(){
     return (rand() % 256);

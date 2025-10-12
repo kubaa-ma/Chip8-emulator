@@ -41,7 +41,11 @@ void draw_display(SDL_Renderer *renderer, cpu *Cpu) {
 
     for(int y = 0; y < DISPLAY_HEIGHT; y++) {
         for(int x = 0; x < DISPLAY_WIDTH; x++) {
-            if (Cpu->display[y * DISPLAY_WIDTH + x]) {
+            uint16_t index = y * DISPLAY_WIDTH + x;
+            uint8_t byte = index / 8;
+            uint8_t bit = index % 8;
+
+            if (Cpu->display[byte] & (1 << bit)) {
                 SDL_FRect rect = {
                     .x = x * PIXEL_SCALE,
                     .y = y * PIXEL_SCALE,
@@ -55,6 +59,7 @@ void draw_display(SDL_Renderer *renderer, cpu *Cpu) {
     Cpu->render = false;
     SDL_RenderPresent(renderer);
 }
+
 
 int main(){
     cpu Cpu;
