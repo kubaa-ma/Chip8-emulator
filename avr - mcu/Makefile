@@ -6,11 +6,11 @@ OBJCOPY = avr-objcopy
 PROGRAMATOR = USBASP
 
 SRC = \
-    src/main.c src/diskio.c \
-    src/drivers/usart.c src/drivers/oled.c src/drivers/storage.c \
-    src/fat/ff.c src/fat/ffsystem.c src/fat/ffunicode.c \
+    src/main.c \
+    src/drivers/usart.c src/drivers/oled.c \
+    src/fat/sdcard.c src/fat/spi.c \
     ../src/cpu.c
-	
+
 TARGET = main.elf
 HEX = main.hex
 INCLUDE = include/
