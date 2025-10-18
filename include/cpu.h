@@ -22,7 +22,7 @@
 #define FONT_START_ADDRESS 0x50
 
 
-#define UNKNOWN_OPCDE printf("Unknown opcode: 0x%X\n", opcode)\
+#define UNKNOWN_OPCDE printf("Unknown opcode: 0x%X\n", opcode)
 
 typedef struct cpu{
     uint8_t memory[MEMORY_SIZE];
@@ -32,7 +32,7 @@ typedef struct cpu{
     uint16_t PC;
     
     uint16_t stack[STACK];
-    uint8_t SP;
+    uint8_t sptr;
     
     uint8_t sound_timer;
     uint8_t delay_timer;
@@ -45,7 +45,6 @@ typedef struct cpu{
 }cpu;
 
 void init_cpu(cpu *data_cpu);
-int load_rom(uint8_t *memory);
 void Cpu_dump(cpu Cpu);
 void execute_opcode(cpu *Cpu);
 void sprite_draw(cpu *Cpu, uint8_t Vx, uint8_t Vy, uint8_t height);

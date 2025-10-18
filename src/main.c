@@ -1,5 +1,6 @@
-#include "../include/cpu.h"
-#include "..\x86_64-w64-mingw32\include\SDL3\SDL.h"
+#include "cpu.h"
+#include "rom.h"
+#include "SDL.h"
 
 #define PIXEL_SCALE 10
 

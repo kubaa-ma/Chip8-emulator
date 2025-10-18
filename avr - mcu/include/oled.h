@@ -6,8 +6,8 @@
 #warning "F_CPU not defined"
 #endif
 
-#define SCL PC5
-#define SDA PC4
+#define SCL PC0
+#define SDA PC1
 
 #define SLAVE_ADDR 0x3C
 #define OLED_SIZE 1024

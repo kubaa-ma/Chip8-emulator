@@ -1,11 +1,14 @@
 CC = gcc
 EXTERN = -Wall
-SRC = src/cpu.c src/main.c
-INC = cpu.h 
+SRC = src/cpu.c src/main.c src/rom.c
 OUTPUT = cpu.exe
-LIB = -Ix86_64-w64-mingw32/include -Lx86_64-w64-mingw32/lib -lSDL3
-all: 
-	$(CC) $(SRC) -I $(INC) $(LIB) $(EXTERN) -o $(OUTPUT)
+
+INCLUDE = x86_64-w64-mingw32/include/SDL3/
+LIB = -Lx86_64-w64-mingw32/lib -lSDL3
+INCLUDE_CHIP8 = include/
+
+all:
+	$(CC) $(SRC) $(EXTERN) $(addprefix -I,$(INCLUDE)) -I$(INCLUDE_CHIP8) $(LIB) -o $(OUTPUT)
 
 clean:
-	-rm $(OUTPUT)
+	-rm -f $(OUTPUT)

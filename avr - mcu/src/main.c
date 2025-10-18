@@ -1,34 +1,38 @@
 #include <avr/io.h>
 #include <util/delay.h>
+#include <string.h>
 #include "oled.h"
 #include "usart.h"
+#include "cpu.h"
 
 void central_init(){
     TWI_init();
     USART_Init(MYUBRR);
     Oled_init();
+    
 }
 
 
 
 int main(){
+    uint8_t DisplayOled[OLED_SIZE];
+    memset(DisplayOled, 0, OLED_SIZE);
+    cpu Cpu;
+    init_cpu(&Cpu);
     central_init();
-    uint8_t data[OLED_SIZE];
+    Oled_draw_buffer(DisplayOled);
+    
+    _delay_ms(100);
 
 
-    for (uint8_t page = 0; page < 8; page++) {
-        for (uint8_t col = 0; col < 128; col++) {
-            if(page % 2 == 0 && col % 8 == 0)
-                data[page*128 + col] = 0xFF;
-            else{
-                data[page*128 + col] = 0x00;
-            }
-        }
+
+    
+    
+    while(1){
+        execute_opcode(&Cpu);
+        _delay_ms(10);
+
     }
-    Oled_draw_buffer(data);
-
-
-    while(1);
 
 
     return 0;
