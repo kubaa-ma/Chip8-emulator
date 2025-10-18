@@ -5,7 +5,12 @@ CFLAGS = -Wall -DF_CPU=$(F_CPU) -mmcu=$(MCU) -std=gnu99 -O2
 OBJCOPY = avr-objcopy
 PROGRAMATOR = USBASP
 
-SRC = src/main.c src/usart.c src/oled.c ../src/cpu.c
+SRC = \
+    src/main.c src/diskio.c \
+    src/drivers/usart.c src/drivers/oled.c src/drivers/storage.c \
+    src/fat/ff.c src/fat/ffsystem.c src/fat/ffunicode.c \
+    ../src/cpu.c
+	
 TARGET = main.elf
 HEX = main.hex
 INCLUDE = include/
